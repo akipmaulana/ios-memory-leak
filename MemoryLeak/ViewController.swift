@@ -79,7 +79,9 @@ final class TheUnownedVC: UIViewController {
     
     var john: Customer?
     
-    deinit { print("\(String(describing: self)) is being deinitialized") }
+    var department: Department?
+    
+    deinit { print("TheUnownedVC is being deinitialized") }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -93,9 +95,29 @@ final class TheUnownedVC: UIViewController {
         label.center = view.center
         view.addSubview(label)
         
-        // Initiate
+        prepareUnownedNonOptionalReference()
+        prepareUnownedOptionalReference()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+    }
+    
+    private func prepareUnownedNonOptionalReference() {
         john = Customer(name: "John Appleseed")
         john!.card = CreditCard(number: 1234_5678_9012_3456, customer: john!)
+    }
+    
+    private func prepareUnownedOptionalReference() {
+        department = Department(name: "Horticulture")
+
+        let intro = Course(name: "Survey of Plants", in: department!)
+        let intermediate = Course(name: "Growing Common Herbs", in: department!)
+        let advanced = Course(name: "Caring for Tropical Plants", in: department!)
+
+        intro.nextCourse = intermediate
+        intermediate.nextCourse = advanced
+        department!.courses = [intro, intermediate, advanced]
     }
 }
 
@@ -117,4 +139,27 @@ final class CreditCard {
         self.customer = customer
     }
     deinit { print("Card #\(number) is being deinitialized") }
+}
+
+// MARK: - Unowned Optional Reference
+class Department {
+    var name: String
+    var courses: [Course]
+    init(name: String) {
+        self.name = name
+        self.courses = []
+    }
+    deinit { print("Department #\(name) is being deinitialized") }
+}
+
+class Course {
+    var name: String
+    unowned let department: Department
+    unowned var nextCourse: Course?
+    init(name: String, in department: Department) {
+        self.name = name
+        self.department = department
+        self.nextCourse = nil
+    }
+    deinit { print("Course #\(name) is being deinitialized") }
 }
