@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,7 +46,7 @@ class ViewController: UIViewController {
 }
 
 // MARK: - The Weak Samples
-class TheWeakView: UIView {
+final class TheWeakView: UIView {
     weak var vc: TheWeakVC?
     
     init(vc: TheWeakVC?) {
@@ -61,7 +61,7 @@ class TheWeakView: UIView {
     }
 }
 
-class TheWeakVC: UIViewController {
+final class TheWeakVC: UIViewController {
     
     lazy var weakView: TheWeakView = {
         TheWeakView(vc: self)
@@ -75,31 +75,46 @@ class TheWeakVC: UIViewController {
 }
 
 // MARK: - The Unowned Samples
-class TheUnownedView: UIView {
-    unowned var vc: TheUnownedVC?
+final class TheUnownedVC: UIViewController {
     
-    init(vc: TheUnownedVC?) {
-        self.vc = vc
-        super.init(frame: .init(x: 0, y: 0, width: 100, height: 100))
-        backgroundColor = .yellow
-        center = vc?.view.center ?? .zero
-    }
+    var john: Customer?
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-
-class TheUnownedVC: UIViewController {
-    
-    lazy var unownedView: TheUnownedView = {
-        TheUnownedView(vc: self)
-    }()
+    deinit { print("\(String(describing: self)) is being deinitialized") }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .blue
-        view.addSubview(unownedView)
+        
+        let label = UILabel(frame: .init(x: 0, y: 0, width: 256, height: 50))
+        label.font = .boldSystemFont(ofSize: 18)
+        label.text = "Swipe down and see log"
+        label.textColor = .yellow
+        label.textAlignment = .center
+        label.center = view.center
+        view.addSubview(label)
+        
+        // Initiate
+        john = Customer(name: "John Appleseed")
+        john!.card = CreditCard(number: 1234_5678_9012_3456, customer: john!)
     }
+}
+
+// MARK: - Unowned Non-Optional
+final class Customer {
+    let name: String
+    var card: CreditCard?
+    init(name: String) {
+        self.name = name
+    }
+    deinit { print("\(name) is being deinitialized") }
+}
+
+final class CreditCard {
+    let number: UInt64
+    unowned let customer: Customer
+    init(number: UInt64, customer: Customer) {
+        self.number = number
+        self.customer = customer
+    }
+    deinit { print("Card #\(number) is being deinitialized") }
 }
