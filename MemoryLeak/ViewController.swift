@@ -22,11 +22,10 @@ final class ViewController: UIViewController {
         button2.setTitle("Unowned Reference Here", for: .normal)
         button2.addTarget(self, action: #selector(didTapUnownedRef), for: .touchUpInside)
         
-        let stackView = UIStackView(frame: .init(x: 0, y: 0, width: 256, height: 50))
-        stackView.distribution = .fill
+        let stackView = UIStackView(frame: .init(x: 0, y: 0, width: 256, height: 100))
+        stackView.distribution = .fillEqually
         stackView.alignment = .center
         stackView.axis = .vertical
-        stackView.spacing = 32
         stackView.addArrangedSubview(button1)
         stackView.addArrangedSubview(button2)
         stackView.center = view.center
@@ -59,9 +58,13 @@ final class TheWeakView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    deinit { print("TheWeakView is being deinitialized") }
 }
 
 final class TheWeakVC: UIViewController {
+    
+    deinit { print("TheWeakVC is being deinitialized") }
     
     lazy var weakView: TheWeakView = {
         TheWeakView(vc: self)
@@ -71,6 +74,14 @@ final class TheWeakVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .red
         view.addSubview(weakView)
+        
+        let label = UILabel(frame: .init(x: 0, y: 0, width: 256, height: 20))
+        label.font = .boldSystemFont(ofSize: 18)
+        label.text = "Swipe down and see log"
+        label.textColor = .blue
+        label.textAlignment = .center
+        label.center = view.center
+        view.addSubview(label)
     }
 }
 
